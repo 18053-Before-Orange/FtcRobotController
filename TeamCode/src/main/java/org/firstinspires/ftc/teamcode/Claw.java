@@ -35,12 +35,20 @@ public class Claw
         clawElbow.setPosition(0.99);
     }
 
+    public void elbowPlace() {
+        clawElbow.setPosition(0.85);
+    }
+
     public void shoulderUp() {
         clawShoulder.setPosition(0.01);
     }
 
     public void shoulderDown() {
-        clawShoulder.setPosition(0.5);
+        clawShoulder.setPosition(0.45);
+    }
+
+    public void shoulderPlace() {
+        clawShoulder.setPosition(0.4);
     }
 
     public void open() {
@@ -54,6 +62,11 @@ public class Claw
     public void extend() {
         elbowDown();
         shoulderDown();
+    }
+
+    public void place() {
+        elbowPlace();
+        shoulderPlace();
     }
 
     public void retract() {

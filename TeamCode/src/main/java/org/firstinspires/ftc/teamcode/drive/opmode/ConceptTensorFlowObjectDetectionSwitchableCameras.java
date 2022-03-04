@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -53,7 +54,7 @@ import java.util.List;
  * is explained below.
  */
 @TeleOp(name = "Concept: TensorFlow Object Detection Switchable Cameras", group = "Concept")
-//@Disabled
+@Disabled
 public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpMode {
   /* Note: This sample uses the all-objects Tensor Flow model (FreightFrenzy_BCDM.tflite), which contains
    * the following 4 detectable objects
@@ -66,7 +67,7 @@ public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpM
    *  FreightFrenzy_BC.tflite  0: Ball,  1: Cube
    *  FreightFrenzy_DM.tflite  0: Duck,  1: Marker
    */
-    private static final String TFOD_MODEL_ASSET = "/sdcard/FIRST/tflitemodels/model_20211226_175935.tflite";
+    private static final String TFOD_MODEL_ASSET = "/sdcard/FIRST/tflitemodels/model_20211226_192012.tflite";
     private static final String[] LABELS = {
             "Blue Hub",
             "Duck",
@@ -138,6 +139,7 @@ public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpM
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
+
         waitForStart();
 
         if (opModeIsActive()) {
@@ -181,9 +183,10 @@ public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpM
         //  Instantiate the Vuforia engine
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
+        FtcDashboard.getInstance().startCameraStream(vuforia, 0);
         // Set the active camera to Webcam 1.
         switchableCamera = (SwitchableCamera) vuforia.getCamera();
-        switchableCamera.setActiveCamera(webcam1);
+        switchableCamera.setActiveCamera(webcam2);
 
         // Loading trackables is not necessary for the TensorFlow Object Detection engine.
     }
@@ -195,11 +198,11 @@ public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpM
         int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
             "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
-        tfodParameters.minResultConfidence = 0.8f;
+        tfodParameters.minResultConfidence = 0.4f;
         tfodParameters.isModelTensorFlow2 = true;
         tfodParameters.inputSize = 320;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);
-        tfod.loadModelFromAsset(TFOD_MODEL_ASSET, LABELS);
+        tfod.loadModelFromFile(TFOD_MODEL_ASSET, LABELS);
     }
 
     private void doCameraSwitching() {
@@ -212,6 +215,7 @@ public class ConceptTensorFlowObjectDetectionSwitchableCameras extends LinearOpM
         } else if (newRightBumper && !oldRightBumper) {
             switchableCamera.setActiveCamera(webcam2);
         }
+
         oldLeftBumper = newLeftBumper;
         oldRightBumper = newRightBumper;
 

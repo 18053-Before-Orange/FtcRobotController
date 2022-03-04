@@ -4,12 +4,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchDevice;
-import com.qualcomm.robotcore.hardware.configuration.I2cSensor;
+import com.qualcomm.robotcore.hardware.configuration.annotations.DeviceProperties;
+import com.qualcomm.robotcore.hardware.configuration.annotations.I2cDeviceType;
 import com.qualcomm.robotcore.util.TypeConversion;
 
-@I2cSensor(name = "Grove Magnetic Sensor", description = "Magnetic Sensor from Grove", xmlTag = "GroveMag")
+
+@SuppressWarnings({"WeakerAccess", "unused"}) // Ignore access and unused warnings
+// Both driver classes cannot register the sensor at the same time. One driver should have the
+// sensor registered, and the other should be commented out
+@I2cDeviceType
+@DeviceProperties(name = "Grove Magnetic Sensor", description = "Magnetic Sensor from Grove", xmlTag = "GroveMag")
 public class MagneticSensor extends I2cDeviceSynchDevice<I2cDeviceSynch> {
-    private static I2cAddr ADDRESS_I2C_DEFAULT= I2cAddr.create7bit(0x2B);
+    public final static I2cAddr ADDRESS_I2C_DEFAULT = I2cAddr.create7bit(0x2B);
 
     protected MagneticSensor(I2cDeviceSynch i2cDeviceSynch, boolean deviceClientIsOwned) {
         super(i2cDeviceSynch, deviceClientIsOwned);
@@ -68,8 +74,9 @@ public class MagneticSensor extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         DRIVE_CURRENT3(0x21),
         MANUFACTURER_ID(0x7E),
         DEVICE_ID(0x7F),
+        RESOLUTION(0x80),
 
-        LAST(DEVICE_ID.bVal);
+        LAST(RESOLUTION.bVal);
 
         public int bVal;
 
@@ -149,13 +156,55 @@ public class MagneticSensor extends I2cDeviceSynchDevice<I2cDeviceSynch> {
         return readShort(Register.DATA3_MSB);
     }
 
+    public short getDriveCurrent0()
+    {
+        return readShort(Register.DRIVE_CURRENT0);
+    }
+
+    public short getDriveCurrent1()
+    {
+        return readShort(Register.DRIVE_CURRENT1);
+    }
+
+    public short getDriveCurrent2()
+    {
+        return readShort(Register.DRIVE_CURRENT2);
+    }
+
+    public short getDriveCurrent3()
+    {
+        return readShort(Register.DRIVE_CURRENT3);
+    }
+
+    public short getRcount0()
+    {
+        return readShort(Register.RCOUNT0);
+    }
+
+    public short getRcount1()
+    {
+        return readShort(Register.RCOUNT1);
+    }
+
+    public short getRcount2()
+    {
+        return readShort(Register.RCOUNT2);
+    }
+
+    public short getRcount3()
+    {
+        return readShort(Register.RCOUNT3);
+    }
+
     public MagneticSensor(I2cDeviceSynch deviceClient)
     {
         super(deviceClient, true);
 
+        this.setOptimalReadWindow();
         this.deviceClient.setI2cAddress(ADDRESS_I2C_DEFAULT);
 
-        super.registerArmingStateCallback(false);
+        super.registerArmingStateCallback(false); // Deals with USB cables getting unplugged
+        // Sensor starts off disengaged so we can change things like I2C address. Need to engage
         this.deviceClient.engage();
     }
 }

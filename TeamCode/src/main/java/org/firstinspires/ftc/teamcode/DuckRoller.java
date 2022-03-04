@@ -16,19 +16,19 @@ public class DuckRoller
     private CRServo duckRoller;
 
     private OpMode opMode;
-    private double duckPower = 0.75;
+    private double duckPower = 0.35;
 
 
     /* Constructor */
     public DuckRoller(HardwareMap hwMap, Telemetry telemetry, LinearOpMode opMode){
         this.opMode = opMode;
-        duckShoulder = hwMap.servo.get("duckRollerShoulder");
-        duckRoller = hwMap.crservo.get("duckRollerSpinner");
+        duckShoulder = hwMap.servo.get("duckShoulder");
+        duckRoller = hwMap.crservo.get("duckRoller");
 
     }
 
     public void down() {
-       duckShoulder.setPosition(0.1);
+       duckShoulder.setPosition(0.075);
     }
 
     public void up() {
@@ -36,14 +36,28 @@ public class DuckRoller
     }
 
     public void spinLeft() {
-        duckRoller.setPower(duckPower);
-    }
-
-    public void spinRight() {
         duckRoller.setPower(-duckPower);
     }
 
+    public void spinRight() {
+        duckRoller.setPower(duckPower);
+    }
+
     public void spinStop() {
+        duckRoller.setPower(0);
+    }
+
+    public void spin(double power) {
+        duckRoller.setPower(power);
+    }
+
+    public void deliverBlue() {
+        duckRoller.setPower(0.99);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         duckRoller.setPower(0);
     }
 

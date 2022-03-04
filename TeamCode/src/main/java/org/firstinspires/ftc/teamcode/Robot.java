@@ -29,8 +29,8 @@ public class Robot
         leftRear = hwMap.dcMotor.get("leftRear");
         rightRear = hwMap.dcMotor.get("rightRear");
 
-        rightFront.setDirection(DcMotor.Direction.REVERSE);
-        rightRear.setDirection(DcMotor.Direction.REVERSE);
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftRear.setDirection(DcMotor.Direction.REVERSE);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -42,6 +42,22 @@ public class Robot
 
         telemetry.addData("Robot", " Is Ready");
         telemetry.update();
+    }
+
+    public int leftFrontPosition() {
+        return leftFront.getCurrentPosition();
+    }
+
+    public int rightFrontPosition() {
+        return rightFront.getCurrentPosition();
+    }
+
+    public int leftRearPosition() {
+        return leftRear.getCurrentPosition();
+    }
+
+    public int rightRearPosition() {
+        return rightRear.getCurrentPosition();
     }
 
     private void setMotorModes(DcMotor.RunMode mode) {

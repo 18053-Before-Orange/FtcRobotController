@@ -10,9 +10,12 @@ import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
 import com.acmerobotics.roadrunner.profile.MotionState;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.teamcode.Lift;
+import org.firstinspires.ftc.teamcode.SliderMotor;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.Objects;
@@ -41,6 +44,7 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 @Autonomous(group = "drive")
+@Disabled
 public class ManualFeedforwardTuner extends LinearOpMode {
     public static double DISTANCE = 72; // in
 
@@ -61,6 +65,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, MAX_VEL, MAX_ACCEL);
     }
 
+    private int holdPosition = 0;
+
     @Override
     public void runOpMode() {
         if (RUN_USING_ENCODER) {
@@ -76,6 +82,9 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
         NanoClock clock = NanoClock.system();
 
+        Lift lift = new Lift(hardwareMap, telemetry, this);
+        SliderMotor slider = new SliderMotor(hardwareMap, telemetry, this);
+
         telemetry.addLine("Ready!");
         telemetry.update();
         telemetry.clearAll();
@@ -90,6 +99,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
 
 
         while (!isStopRequested()) {
+            holdPosition = lift.runToSafetyPosition(450, holdPosition, slider);
+
             telemetry.addData("mode", mode);
 
             switch (mode) {
