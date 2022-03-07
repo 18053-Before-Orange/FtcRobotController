@@ -16,7 +16,7 @@ public class DuckRoller
     private CRServo duckRoller;
 
     private OpMode opMode;
-    private double duckPower = 0.35;
+    private double duckPower = 0.3;
 
 
     /* Constructor */
@@ -28,7 +28,7 @@ public class DuckRoller
     }
 
     public void down() {
-       duckShoulder.setPosition(0.075);
+       duckShoulder.setPosition(0.09);
     }
 
     public void up() {

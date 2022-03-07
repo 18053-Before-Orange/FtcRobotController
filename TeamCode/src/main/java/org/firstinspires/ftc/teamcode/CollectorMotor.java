@@ -23,6 +23,7 @@ public class CollectorMotor
     private DcMotor collector;
     private CRServo ejectorLeft;
     private CRServo ejectorRight;
+    private DistanceSensor distanceSensor;
 
     private OpMode opMode;
 
@@ -46,6 +47,12 @@ public class CollectorMotor
             ((SwitchableLight) freightDetector).enableLight(true);
         }
 
+        distanceSensor = hwMap.get(DistanceSensor.class, "distanceSensor");
+
+    }
+
+    public double getDistance() {
+        return distanceSensor.getDistance(DistanceUnit.INCH);
     }
 
     public boolean detectFreight() {

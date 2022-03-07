@@ -67,31 +67,11 @@ public class BlueAutoDuck extends LinearOpMode
         drive.setPoseEstimate(startPose);
         int deliveryPosition = DELIVERY_1_POSITION;
         int sliderPosition = slider.SLIDER_1_POSITION;
+        double driveApproach = 0;
 
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(-36, 58))
                 .build();
-
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-64, 54, Math.toRadians(125)))
-                .build();
-
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .lineToLinearHeading(new Pose2d(-64, 23, Math.toRadians(0)))
-                .build();
-
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(-34, 14, Math.toRadians(20)))
-                .build();
-
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
-                .lineToLinearHeading(new Pose2d(-66, 16, Math.toRadians(90)))
-                .build();
-
-        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
-                .lineToLinearHeading(new Pose2d(-66, 36, Math.toRadians(90)))
-                .build();
-
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
@@ -144,7 +124,8 @@ public class BlueAutoDuck extends LinearOpMode
             case LEFT:
             {
                 deliveryPosition = DELIVERY_1_POSITION;
-                sliderPosition = slider.SLIDER_1_POSITION;
+                sliderPosition = slider.SLIDER_2_POSITION;
+                driveApproach = 2.5;
                 break;
             }
 
@@ -152,13 +133,15 @@ public class BlueAutoDuck extends LinearOpMode
             {
                 deliveryPosition = DELIVERY_3_POSITION;
                 sliderPosition = slider.SLIDER_3_POSITION;
+                driveApproach = 3.5;
                 break;
             }
 
             case CENTER:
             {
                 deliveryPosition = DELIVERY_2_POSITION;
-                sliderPosition = slider.SLIDER_2_POSITION;
+                sliderPosition = slider.SLIDER_3_POSITION;
+                driveApproach = 3;
                 break;
             }
         }
@@ -171,24 +154,54 @@ public class BlueAutoDuck extends LinearOpMode
         drive.followTrajectory(traj1);
         duck.down();
         duck.spinRight();
+        Trajectory traj2 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-62, 54, Math.toRadians(125)))
+                .build();
+
         drive.followTrajectory(traj2);
         sleep(3000);
         duck.spinStop();
         duck.up();
+
+        Trajectory traj3 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-62, 23, Math.toRadians(0)))
+                .build();
         drive.followTrajectory(traj3);
+
         lift.runToPosition(deliveryPosition);
         slider.runToPositionNoProtection(sliderPosition);
+
+        Trajectory traj4 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-34, 14, Math.toRadians(20)))
+                .build();
         drive.followTrajectory(traj4);
+
+        Trajectory trajDeliver = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .forward(driveApproach)
+                .build();
+        drive.followTrajectory(trajDeliver);
+
+        Trajectory traj5 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-64, 16, Math.toRadians(90)))
+                .build();
+
+        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
+                .lineToLinearHeading(new Pose2d(-64, 36, Math.toRadians(90)))
+                .build();
 
         collector.egressSpeed(0.99);
         collector.speed(0.9);
         sleep(2000);
         collector.speed(0);
         collector.egressSpeed(0);
-        slider.runToPosition(0);
+        slider.center(lift);
         lift.runToPosition(MOVE_POSITION);
+
         drive.followTrajectory(traj5);
+        slider.center(lift);
         drive.followTrajectory(traj6);
+        slider.center(lift);
+        sleep(2000);
         lift.runToPosition(PARK_POSITION);
 
     }

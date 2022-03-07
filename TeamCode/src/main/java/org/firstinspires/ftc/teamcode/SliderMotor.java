@@ -21,8 +21,8 @@ public class SliderMotor
 {
     private DcMotor slider;
 
-    public static final int SLIDER_1_POSITION = 100;
-    public static final int SLIDER_2_POSITION = 135;
+    public static final int SLIDER_1_POSITION = 135;
+    public static final int SLIDER_2_POSITION = 150;
     public static final int SLIDER_3_POSITION = 175;
 
 //    NormalizedColorSensor sliderPosition;
@@ -44,7 +44,7 @@ public class SliderMotor
         boolean reverse = false;
         lift.runToPosition(100);
         slider.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while (!lift.magnetic.getState()) {
+        while (lift.touch.isPressed()) {
             if (position != slider.getCurrentPosition() && !reverse) {
                 slider.setPower(0.25);
             } else if (reverse) {
@@ -141,32 +141,11 @@ public class SliderMotor
     }
 
     public void center(Lift lift) {
-        if (lift.leftLiftPosition() < lift.DELIVERY_2_POSITION) {
-            if (slider.getCurrentPosition() < -10 && (lift.leftLiftPosition() < 150)) {
-                slider.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                slider.setPower(1.0);
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            runToPosition(0);
-        } else if (slider.getCurrentPosition() > 75) {
-            slider.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            slider.setPower(-1.0);
-            try {
-                Thread.sleep(35);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        } else {
-            if (lift.leftLiftPosition() > lift.DELIVERY_3_POSITION + 100) {
-                runToPosition(0);
-            } else {
-                runToPosition(50);
-            }
-        }
+       if (!lift.touch.isPressed()) {
+           speed(-1.0);
+       } else {
+           speed(0);
+       }
     }
 
 //    public NormalizedRGBA getPositionColor() {

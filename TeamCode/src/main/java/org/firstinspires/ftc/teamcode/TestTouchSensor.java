@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /*
  * This is an example LinearOpMode that shows how to use
@@ -43,9 +44,9 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list.
  */
-@TeleOp(name = "Sensor: Mag Switch", group = "Sensor")
+@TeleOp(name = "Sensor: Touch", group = "Sensor")
 @Disabled
-public class TestMagSwitch extends LinearOpMode {
+public class TestTouchSensor extends LinearOpMode {
     /**
      * The REV Robotics Touch Sensor
      * is treated as a digital channel.  It is HIGH if the button is unpressed.
@@ -56,16 +57,13 @@ public class TestMagSwitch extends LinearOpMode {
      * The lower (first) pin stays unconnected.*
      */
 
-    DigitalChannel digitalTouch;  // Hardware Device Object
+    TouchSensor touchSensor;  // Hardware Device Object
 
     @Override
     public void runOpMode() {
 
-        // get a reference to our digitalTouch object.
-        digitalTouch = hardwareMap.get(DigitalChannel.class, "touch");
-
-        // set the digital channel to input.
-        digitalTouch.setMode(DigitalChannel.Mode.INPUT);
+        // get a reference to our touchSensor object.
+        touchSensor = hardwareMap.touchSensor.get("touch");
 
         // wait for the start button to be pressed.
         waitForStart();
@@ -76,7 +74,7 @@ public class TestMagSwitch extends LinearOpMode {
 
             // send the info back to driver station using telemetry function.
             // if the digital channel returns true it's HIGH and the button is unpressed.
-            if (digitalTouch.getState() == true) {
+            if (!touchSensor.isPressed()) {
                 telemetry.addData("Digital Touch", "Is Not Pressed");
             } else {
                 telemetry.addData("Digital Touch", "Is Pressed");

@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -16,7 +17,7 @@ public class Lift
     private DcMotor leftLift;
     private DcMotor rightLift;
     private DcMotor.RunMode currentLiftMode;
-    public DigitalChannel magnetic;
+    public TouchSensor touch;
 
 
     private OpMode opMode;
@@ -35,15 +36,15 @@ public class Lift
     public static final String DUCK_APPROACH = "DUCK APPROACH";
     public static final String DUCK_SPIN = "DUCK SPIN";
 
-    public static final int COLLECTION_POSITION = 50;
-    public static final int DELIVERY_1_POSITION = 550;
-    public static final int DELIVERY_2_POSITION = 1250;
-    public static final int DELIVERY_3_POSITION = 2150;
+    public static final int COLLECTION_POSITION = 100;
+    public static final int DELIVERY_1_POSITION = 700;
+    public static final int DELIVERY_2_POSITION = 1300;
+    public static final int DELIVERY_3_POSITION = 2200;
     public static final int CAPPING_POSITION = 3100;
     public static final int CAP_PLACEMENT_POSITION = 2300;
-    public static final int CAP_PICKUP_POSITION = 200;
+    public static final int CAP_PICKUP_POSITION = 100;
     public static final int PARK_POSITION = 0;
-    public static final int MOVE_POSITION = 475;
+    public static final int MOVE_POSITION = 500;
     public static final int DUCK_APPROACH_POSITION = 250;
     public static final int DUCK_SPIN_POSITION = 250;
 
@@ -57,8 +58,7 @@ public class Lift
         rightLift.setDirection(DcMotor.Direction.REVERSE);
         leftLift.setDirection(DcMotor.Direction.REVERSE);
 
-        magnetic = hwMap.get(DigitalChannel.class, "magnetic");
-        magnetic.setMode(DigitalChannel.Mode.INPUT);
+        touch = hwMap.touchSensor.get("touch");
 
     }
 

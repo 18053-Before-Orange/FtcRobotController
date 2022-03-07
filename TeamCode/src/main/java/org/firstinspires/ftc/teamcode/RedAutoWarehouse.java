@@ -14,6 +14,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import static org.firstinspires.ftc.teamcode.Lift.COLLECTION_POSITION;
 import static org.firstinspires.ftc.teamcode.Lift.DELIVERY_1_POSITION;
 import static org.firstinspires.ftc.teamcode.Lift.DELIVERY_2_POSITION;
 import static org.firstinspires.ftc.teamcode.Lift.DELIVERY_3_POSITION;
@@ -58,21 +59,10 @@ public class RedAutoWarehouse extends LinearOpMode
         drive.setPoseEstimate(startPose);
         int deliveryPosition = DELIVERY_1_POSITION;
         int sliderPosition = slider.SLIDER_1_POSITION;
+        double driveApproach = 0;
 
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(12, -58))
-                .build();
-
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-14, -46, Math.toRadians(90)))
-                .build();
-
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .lineToLinearHeading(new Pose2d(12, -58, Math.toRadians(180)))
-                .build();
-
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(45, -58, Math.toRadians(180)))
                 .build();
 
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
@@ -125,7 +115,8 @@ public class RedAutoWarehouse extends LinearOpMode
             case LEFT:
             {
                 deliveryPosition = DELIVERY_1_POSITION;
-                sliderPosition = slider.SLIDER_1_POSITION;
+                sliderPosition = slider.SLIDER_2_POSITION;
+                driveApproach = 3;
                 break;
             }
 
@@ -133,13 +124,15 @@ public class RedAutoWarehouse extends LinearOpMode
             {
                 deliveryPosition = DELIVERY_3_POSITION;
                 sliderPosition = slider.SLIDER_3_POSITION;
+                driveApproach = 3.5;
                 break;
             }
 
             case CENTER:
             {
                 deliveryPosition = DELIVERY_2_POSITION;
-                sliderPosition = slider.SLIDER_2_POSITION;
+                sliderPosition = slider.SLIDER_3_POSITION;
+                driveApproach = 3;
                 break;
             }
         }
@@ -148,55 +141,18 @@ public class RedAutoWarehouse extends LinearOpMode
         drive.followTrajectory(traj1);
         lift.runToPosition(deliveryPosition);
         slider.runToPositionNoProtection(sliderPosition);
+        Trajectory traj2 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-14, -47, Math.toRadians(90)))
+                .build();
         drive.followTrajectory(traj2);
-        collector.egressSpeed(0.99);
-        collector.speed(0.9);
-        sleep(2000);
-        collector.speed(0);
-        collector.egressSpeed(0);
-        slider.runToPosition(10);
-        lift.runToPosition(MOVE_POSITION);
-        drive.followTrajectory(traj3);
-        drive.followTrajectory(traj4);
 
-        Trajectory trajCollect = drive.trajectoryBuilder(traj4.end())
-                .back(6)
+        Trajectory trajApproach = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .forward(driveApproach)
                 .build();
-
-        collector.speed(0.9);
-
-        while(!collector.detectFreight()) {
-            drive.followTrajectory(trajCollect);
-            trajCollect = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .back(1)
-                    .build();
-            sleep(500);
-        }
-        collector.speed(0);
-
-        while (!slider.isCenter()) {
-            slider.runToPositionNoProtection(0);
-            telemetry.addData("Slider Pos: ", slider.getSliderPosition());
-            telemetry.update();
-        }
-        lift.runToPosition(MOVE_POSITION);
-
-        Trajectory trajCheckpoint = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(new Pose2d(12, -58, Math.toRadians(180)))
-                .build();
-        drive.followTrajectory(trajCheckpoint);
-
-        lift.runToPosition(DELIVERY_3_POSITION);
-        slider.runToPositionNoProtection(slider.SLIDER_3_POSITION);
-
-
-        Trajectory trajDeliver = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(new Pose2d(-14, 46, Math.toRadians(90)))
-                .build();
-        drive.followTrajectory(trajDeliver);
+        drive.followTrajectory(trajApproach);
 
         collector.egressSpeed(0.99);
-        collector.speed(0.9);
+        collector.speed(0.55);
         sleep(2000);
         collector.speed(0);
         collector.egressSpeed(0);
@@ -204,23 +160,73 @@ public class RedAutoWarehouse extends LinearOpMode
         sleep(1000);
         lift.runToPosition(MOVE_POSITION);
 
+        Trajectory traj3 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(12, -56, Math.toRadians(180)))
+                .build();
+
+        drive.followTrajectory(traj3);
+        Trajectory traj4 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(42, -56, Math.toRadians(180)))
+                .build();
+        drive.followTrajectory(traj4);
+
+        lift.runToPosition(COLLECTION_POSITION);
+
+        Trajectory trajCollect = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .back(4)
+                .build();
+
+        collector.speed(0.75);
+
+        while(!collector.detectFreight()) {
+            drive.followTrajectory(trajCollect);
+            trajCollect = drive.trajectoryBuilder(drive.getPoseEstimate())
+                    .back(1.5)
+                    .build();
+        }
+        collector.speed(0);
+
+        slider.center(lift);
+        lift.runToPosition(MOVE_POSITION);
+
+        Trajectory trajCheckpoint = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(12, -56, Math.toRadians(180)))
+                .build();
+        drive.followTrajectory(trajCheckpoint);
+
+        slider.center(lift);
+
+        lift.runToPosition(DELIVERY_3_POSITION);
+        slider.runToPositionNoProtection(slider.SLIDER_3_POSITION);
+
+        Trajectory trajDeliver = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-14, -47, Math.toRadians(90)))
+                .build();
+        drive.followTrajectory(trajDeliver);
+
+        trajApproach = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .forward(3)
+                .build();
+        drive.followTrajectory(trajApproach);
+
+        collector.egressSpeed(0.99);
+        collector.speed(0.55);
+        sleep(2000);
+        collector.speed(0);
+        collector.egressSpeed(0);
+        slider.center(lift);
+        sleep(1000);
+        lift.runToPosition(MOVE_POSITION);
+
         trajCheckpoint = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(new Pose2d(12, -58, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(12, -60, Math.toRadians(180)))
                 .build();
         drive.followTrajectory(trajCheckpoint);
 
         Trajectory trajPark = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(new Pose2d(42, -58, Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(42, -60, Math.toRadians(180)))
                 .build();
         drive.followTrajectory(trajPark);
-
         lift.runToPosition(PARK_POSITION);
-//
-//        /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-//        while (opModeIsActive())
-//        {
-//            // Don't burn CPU cycles busy-looping in this sample
-//            sleep(50);
-//        }
     }
 }

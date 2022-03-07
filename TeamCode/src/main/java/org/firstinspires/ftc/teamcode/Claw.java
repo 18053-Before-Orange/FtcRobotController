@@ -44,7 +44,7 @@ public class Claw
     }
 
     public void shoulderDown() {
-        clawShoulder.setPosition(0.45);
+        clawShoulder.setPosition(0.475);
     }
 
     public void shoulderPlace() {

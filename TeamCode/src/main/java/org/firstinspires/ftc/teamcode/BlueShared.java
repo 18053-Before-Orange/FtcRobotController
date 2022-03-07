@@ -58,7 +58,7 @@ import static org.firstinspires.ftc.teamcode.Lift.PARK_POSITION;
 import static org.firstinspires.ftc.teamcode.Lift.TRANSIT;
 
 @TeleOp(name="BlueShared", group="18053")
-public class RedSharedDefault extends LinearOpMode {
+public class BlueShared extends LinearOpMode {
     //Initializes joystick storage variables
     private double leftStickX, leftStickY, rightStickX, rightStickY;
     private double lightValue;
@@ -128,38 +128,16 @@ public class RedSharedDefault extends LinearOpMode {
         Claw claw = new Claw(hardwareMap, telemetry, this);
         Light light = new Light(hardwareMap, telemetry, this);
 
-
-        telemetry.addLine("Hit A to reset Slider Encoders, B to NOT reset Slider encoders");
-        telemetry.update();
-
-        if (!lift.magnetic.getState()) {
-            light.displayPattern(STROBE_BLUE_PATTERN);
-        } else {
-            light.displayPattern(STROBE_RED_PATTERN);
-        }
-
-        while (!gamepad1.a && !gamepad1.b && !opModeIsActive() && !isStopRequested()) {
-
-        }
-
-        if (gamepad1.a) {
+        while (!opModeIsActive() && !slider.isCenter()) {
+            slider.center(lift);
             slider.resetEncoders();
-            telemetry.addLine("Slider Encoders reset");
-        } else {
-            telemetry.addLine("Slider Encoders NOT reset");
         }
-
-        light.displayPattern(RED_PATTERN);
-
-        telemetry.addLine("Ready to Start");
-        telemetry.update();
 
         waitForStart();
 
-
         while (opModeIsActive()) {
             if (gamepad1.left_trigger > 0.5) {
-                if (!lift.magnetic.getState()) {
+                if (lift.touch.isPressed()) {
                     light.displayPattern(STROBE_BLUE_PATTERN);
                 } else {
                     light.displayPattern(STROBE_RED_PATTERN);
@@ -189,16 +167,6 @@ public class RedSharedDefault extends LinearOpMode {
                     slider.speed(0);
                 }
             } else {
-
-                if (gamepad1.start) {
-                    light.displayPattern(STROBE_WHITE_PATTERN);
-                    if (gamepad1.dpad_up) {
-                        deliveryAdjustment += 15;
-                    } else if (gamepad1.dpad_down) {
-                        deliveryAdjustment = deliveryAdjustment - 15;
-                    }
-                }
-                
                 isFreightDetected = collector.detectFreight();
                 setRobotMode();
                 setCollector();
@@ -212,17 +180,14 @@ public class RedSharedDefault extends LinearOpMode {
                 setClaw(claw);
 
                 if (ejectorOn()) {
-                    collector.speed(0.9);
+                    collector.speed(0.85);
                     collector.egressSpeed(0.99);
-                    sleep(150);
-                    collector.speed(0.0);
-                    collector.egressSpeed(0.0);
                 } else {
                     if (!intakeOn()) {
                         collector.speed(0);
                         collector.egressSpeed((0));
                     } else {
-                        collector.speed(0.9);
+                        collector.speed(0.85);
                     }
                 }
 
@@ -325,7 +290,7 @@ public class RedSharedDefault extends LinearOpMode {
             sliderOut = false;
             duck.down();
             if (gamepad1.right_trigger > 0.5) {
-                duck.spin(-0.99);
+                duck.spin(0.99);
             } else {
                 duck.spinStop();
             }
@@ -373,13 +338,13 @@ public class RedSharedDefault extends LinearOpMode {
 
             switch (deliveryPositionCounter) {
                 case 0:
-                    deliveryPosition = LEVEL_3;
-                    break;
-                case 1:
                     deliveryPosition = LEVEL_1;
                     break;
-                case 2:
+                case 1:
                     deliveryPosition = LEVEL_2;
+                    break;
+                case 2:
+                    deliveryPosition = LEVEL_3;
                     break;
             }
         }
@@ -582,15 +547,15 @@ public class RedSharedDefault extends LinearOpMode {
             sliderPressed = false;
         }
 
-        if (!lift.magnetic.getState() && !sliderReset) {
-//            slider.resetEncoders();
+        if (lift.touch.isPressed() && !sliderReset) {
+            slider.resetEncoders();
             sliderReset = true;
         }
         
         if (sliderForward && sliderForwardEnabled) {
             slider.forward(lift, sliderExtra);
         } else if (sliderBack && sliderBackEnabled) {
-            slider.back(lift);
+//            slider.back(lift);
         } else {
             slider.center(lift);
         }

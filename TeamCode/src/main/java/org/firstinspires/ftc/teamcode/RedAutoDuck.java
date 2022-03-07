@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.opmode.SkystoneDeterminationExample;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -35,8 +36,7 @@ public class RedAutoDuck extends LinearOpMode
     SkystoneDeterminationExample.SkystoneDeterminationPipeline.SkystonePosition snapshotAnalysis = SkystoneDeterminationExample.SkystoneDeterminationPipeline.SkystonePosition.LEFT; // default
 
     @Override
-    public void runOpMode()
-    {
+    public void runOpMode() {
         /**
          * NOTE: Many comments have been omitted from this sample for the
          * sake of conciseness. If you're just starting out with EasyOpenCv,
@@ -58,42 +58,21 @@ public class RedAutoDuck extends LinearOpMode
         drive.setPoseEstimate(startPose);
         int deliveryPosition = DELIVERY_1_POSITION;
         int sliderPosition = slider.SLIDER_1_POSITION;
+        double driveApproach = 0;
 
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
                 .lineTo(new Vector2d(-36, -58))
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-64, -54, Math.toRadians(235)))
-                .build();
-
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .lineToLinearHeading(new Pose2d(-64, -23, Math.toRadians(0)))
-                .build();
-
-        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .lineToLinearHeading(new Pose2d(-34, -16, Math.toRadians(340)))
-                .build();
-
-        Trajectory traj5 = drive.trajectoryBuilder(traj4.end())
-                .lineToLinearHeading(new Pose2d(-66, -16, Math.toRadians(270)))
-                .build();
-
-        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
-                .lineToLinearHeading(new Pose2d(-66, -36, Math.toRadians(270)))
-                .build();
-
-
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
-            public void onOpened()
-            {
-                webcam.startStreaming(320,240, OpenCvCameraRotation.UPRIGHT);
+            public void onOpened() {
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
-            public void onError(int errorCode) {}
+            public void onError(int errorCode) {
+            }
         });
 
         slider.resetEncoders();
@@ -103,8 +82,7 @@ public class RedAutoDuck extends LinearOpMode
          * The INIT-loop:
          * This REPLACES waitForStart!
          */
-        while (!isStarted() && !isStopRequested())
-        {
+        while (!isStarted() && !isStopRequested()) {
             telemetry.addData("Realtime analysis", pipeline.getAnalysis());
             telemetry.addData("Left", pipeline.getLeft());
             telemetry.addData("Center", pipeline.getCenter());
@@ -130,27 +108,26 @@ public class RedAutoDuck extends LinearOpMode
         telemetry.addData("Snapshot post-START analysis", snapshotAnalysis);
         telemetry.update();
 
-        switch (snapshotAnalysis)
-        {
+        switch (snapshotAnalysis) {
 
-            case LEFT:
-            {
+            case LEFT: {
                 deliveryPosition = DELIVERY_1_POSITION;
-                sliderPosition = slider.SLIDER_1_POSITION;
+                sliderPosition = slider.SLIDER_2_POSITION;
+                driveApproach = 2.5;
                 break;
             }
 
-            case RIGHT:
-            {
+            case RIGHT: {
                 deliveryPosition = DELIVERY_3_POSITION;
                 sliderPosition = slider.SLIDER_3_POSITION;
+                driveApproach = 3.5;
                 break;
             }
 
-            case CENTER:
-            {
+            case CENTER: {
                 deliveryPosition = DELIVERY_2_POSITION;
-                sliderPosition = slider.SLIDER_2_POSITION;
+                sliderPosition = slider.SLIDER_3_POSITION;
+                driveApproach = 3;
                 break;
             }
         }
@@ -163,34 +140,55 @@ public class RedAutoDuck extends LinearOpMode
         drive.followTrajectory(traj1);
         duck.down();
         duck.spinLeft();
+        Trajectory traj2 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-62, -54, Math.toRadians(235)))
+                .build();
+
         drive.followTrajectory(traj2);
         sleep(3000);
         duck.spinStop();
         duck.up();
+
+        Trajectory traj3 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-62, -23, Math.toRadians(0)))
+                .build();
         drive.followTrajectory(traj3);
+
         lift.runToPosition(deliveryPosition);
         slider.runToPositionNoProtection(sliderPosition);
+
+        Trajectory traj4 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-34, -14, Math.toRadians(340)))
+                .build();
         drive.followTrajectory(traj4);
+
+        Trajectory trajDeliver = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .forward(driveApproach)
+                .build();
+        drive.followTrajectory(trajDeliver);
+
+        Trajectory traj5 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(new Pose2d(-64, -16, Math.toRadians(270)))
+                .build();
+
+        Trajectory traj6 = drive.trajectoryBuilder(traj5.end())
+                .lineToLinearHeading(new Pose2d(-64, -33, Math.toRadians(270)))
+                .build();
 
         collector.egressSpeed(0.99);
         collector.speed(0.9);
         sleep(2000);
         collector.speed(0);
         collector.egressSpeed(0);
-        slider.runToPosition(0);
+        slider.center(lift);
         lift.runToPosition(MOVE_POSITION);
+
         drive.followTrajectory(traj5);
+        slider.center(lift);
         drive.followTrajectory(traj6);
+        slider.center(lift);
+        sleep(2000);
         lift.runToPosition(PARK_POSITION);
 
-
-
-
-        /* You wouldn't have this in your autonomous, this is just to prevent the sample from ending */
-        while (opModeIsActive())
-        {
-            // Don't burn CPU cycles busy-looping in this sample
-            sleep(50);
-        }
     }
 }
