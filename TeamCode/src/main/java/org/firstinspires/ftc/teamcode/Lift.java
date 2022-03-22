@@ -42,11 +42,11 @@ public class Lift
     public static final int DELIVERY_3_POSITION = 2200;
     public static final int CAPPING_POSITION = 3100;
     public static final int CAP_PLACEMENT_POSITION = 2300;
-    public static final int CAP_PICKUP_POSITION = 100;
+    public static final int CAP_PICKUP_POSITION = 250;
     public static final int PARK_POSITION = 0;
     public static final int MOVE_POSITION = 500;
-    public static final int DUCK_APPROACH_POSITION = 250;
-    public static final int DUCK_SPIN_POSITION = 250;
+    public static final int DUCK_APPROACH_POSITION = 100;
+    public static final int DUCK_SPIN_POSITION = 100;
 
 
     /* Constructor */
@@ -64,13 +64,12 @@ public class Lift
 
     public int runToSafetyPosition(int position, int holdPosition, SliderMotor slider) {
         if (slider.isCenter() || (slider.isForward() && position >= 450 && leftLiftPosition() > 520
-                && (slider.getSliderPosition() < 60 || position > -holdPosition)) ||
-                (slider.isBack() && position < 100 && leftLiftPosition() < 100)) {
+                && (position > -holdPosition))) {
             if (slider.getSliderPosition() >= 60 && position < -holdPosition) {
                 leftLift.setTargetPosition(holdPosition);
                 rightLift.setTargetPosition(holdPosition);
 
-                slider.runToPosition(50);
+                slider.center(this);
             } else {
                 leftLift.setTargetPosition(-position);
                 rightLift.setTargetPosition(-position);

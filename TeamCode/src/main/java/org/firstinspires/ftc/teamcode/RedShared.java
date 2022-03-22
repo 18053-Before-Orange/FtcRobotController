@@ -104,6 +104,7 @@ public class RedShared extends LinearOpMode {
     private int capPlaceExtra = 0;
     private int capPickupExtra = 0;
     private int deliveryAdjustment = 0;
+    private double speedFactor = 1;
 
     private static final RevBlinkinLedDriver.BlinkinPattern GREEN_PATTERN = RevBlinkinLedDriver.BlinkinPattern.DARK_GREEN;
     private static final RevBlinkinLedDriver.BlinkinPattern RED_PATTERN = RevBlinkinLedDriver.BlinkinPattern.DARK_RED;
@@ -136,6 +137,8 @@ public class RedShared extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
+
             if (gamepad1.left_trigger > 0.5) {
                 if (lift.touch.isPressed()) {
                     light.displayPattern(STROBE_BLUE_PATTERN);
@@ -180,7 +183,9 @@ public class RedShared extends LinearOpMode {
                 setClaw(claw);
 
                 if (ejectorOn()) {
-                    collector.speed(0.85);
+                    if (gamepad1.right_trigger > 0.5) {
+                        collector.speed(0.85);
+                    }
                     collector.egressSpeed(0.99);
                 } else {
                     if (!intakeOn()) {
@@ -193,6 +198,12 @@ public class RedShared extends LinearOpMode {
 
                 leftStickX = gamepad1.left_stick_x;
                 leftStickY = gamepad1.left_stick_y * -1;
+
+                if (deployClaw) {
+                    speedFactor = 2;
+                } else {
+                    speedFactor =1;
+                }
 
                 if (Math.abs(gamepad1.right_stick_x) > threshold) {
                     if (gamepad1.right_stick_x < 0)
@@ -210,9 +221,9 @@ public class RedShared extends LinearOpMode {
 
                     //Set motor speed variables
                     if (robotMode == DELIVER) {
-                        robot.setMotorPowers((addValue + rightStickX), (subtractValue - rightStickX), (subtractValue + rightStickX), (addValue - rightStickX));
+                        robot.setMotorPowers((addValue + rightStickX) / speedFactor, (subtractValue - rightStickX) / speedFactor, (subtractValue + rightStickX) / speedFactor, (addValue - rightStickX) / speedFactor);
                     } else {
-                        robot.setMotorPowers(-(addValue - rightStickX), -(subtractValue + rightStickX), -(subtractValue - rightStickX), -(addValue + rightStickX));
+                        robot.setMotorPowers(-(addValue - rightStickX) / speedFactor, -(subtractValue + rightStickX) / speedFactor, -(subtractValue - rightStickX) / speedFactor, -(addValue + rightStickX) / speedFactor);
                     }
                 } else {
                     robot.stop();
@@ -289,8 +300,8 @@ public class RedShared extends LinearOpMode {
         if (deployDuckRoller) {
             sliderOut = false;
             duck.down();
-            if (gamepad1.right_trigger > 0.5) {
-                duck.spin(-0.99);
+            if (gamepad1.right_trigger > 0.05) {
+                duck.spin(-gamepad1.right_trigger + 0.01);
             } else {
                 duck.spinStop();
             }
@@ -547,7 +558,7 @@ public class RedShared extends LinearOpMode {
             sliderPressed = false;
         }
 
-        if (lift.touch.isPressed() && !sliderReset) {
+        if (lift.touch.isPressed()) {
             slider.resetEncoders();
             sliderReset = true;
         }
@@ -593,7 +604,7 @@ public class RedShared extends LinearOpMode {
     }
 
     private boolean ejectorOn() {
-        if (gamepad1.right_trigger > 0.5 && !deployDuckRoller && !deployClaw) {
+        if (gamepad1.right_trigger > 0.1 && !deployDuckRoller && !deployClaw) {
             return true;
         } else {
             return false;

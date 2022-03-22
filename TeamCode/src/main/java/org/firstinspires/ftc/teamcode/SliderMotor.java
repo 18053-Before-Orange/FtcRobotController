@@ -141,7 +141,7 @@ public class SliderMotor
     }
 
     public void center(Lift lift) {
-       if (!lift.touch.isPressed()) {
+       if (!lift.touch.isPressed() && getSliderPosition() > 10 || getSliderPosition() < 0) {
            speed(-1.0);
        } else {
            speed(0);

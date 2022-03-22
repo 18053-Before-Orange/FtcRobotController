@@ -145,7 +145,7 @@ public class RedAutoDuck extends LinearOpMode
                 .build();
 
         drive.followTrajectory(traj2);
-        sleep(3000);
+        sleep(5000);
         duck.spinStop();
         duck.up();
 

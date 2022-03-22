@@ -116,7 +116,7 @@ public class RedAutoWarehouse extends LinearOpMode
             {
                 deliveryPosition = DELIVERY_1_POSITION;
                 sliderPosition = slider.SLIDER_2_POSITION;
-                driveApproach = 3;
+                driveApproach = 4;
                 break;
             }
 
@@ -124,7 +124,7 @@ public class RedAutoWarehouse extends LinearOpMode
             {
                 deliveryPosition = DELIVERY_3_POSITION;
                 sliderPosition = slider.SLIDER_3_POSITION;
-                driveApproach = 3.5;
+                driveApproach = 5;
                 break;
             }
 
@@ -132,7 +132,7 @@ public class RedAutoWarehouse extends LinearOpMode
             {
                 deliveryPosition = DELIVERY_2_POSITION;
                 sliderPosition = slider.SLIDER_3_POSITION;
-                driveApproach = 3;
+                driveApproach = 4;
                 break;
             }
         }
